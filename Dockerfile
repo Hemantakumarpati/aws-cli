@@ -1,45 +1,14 @@
-FROM alpine:latest
+FROM    stakater/base-alpine
+LABEL   authors="Hazim <hazim_malik@hotmail.com>"
 
-# Define build time arguments
-ARG BUILD_DATE
-ARG VCS_REF
-ARG VERSION
+RUN     apk -Uuv add groff less python py-pip && \
+        pip install awscli && \
+        apk --purge -v del py-pip && \
+        rm /var/cache/apk/*
 
-# Use UID 1000 if not passed as a build argument
-ARG UID=1000
+# Expose volume for AWS credentials
+VOLUME  ["/root/.aws"]
+# Expose the working directory
+VOLUME 	["/aws"]
 
-RUN set -ex \
-    \
-# Install dependencies
-    && apk add --no-cache \
-        python \
-        groff \
-        less \
-        py-pip \
-    \
-# Install AWS CLI
-    && pip --no-cache-dir install awscli==$VERSION \
-    \
-# Clean up
-    && apk del py-pip \
-    \
-# Add aws user
-    && adduser -D -u $UID aws
-
-WORKDIR /home/aws
-
-USER aws
-
-CMD ["help"]
-ENTRYPOINT ["aws"]
-
-# Define image metadata (https://microbadger.com/labels)
-LABEL org.label-schema.build-date=$BUILD_DATE \
-      org.label-schema.docker.dockerfile="/Dockerfile" \
-      org.label-schema.license=MIT \
-      org.label-schema.name="aws-cli" \
-      org.label-schema.version=$VERSION \
-      org.label-schema.url=https://github.com/aws/aws-cli \
-      org.label-schema.vcs-ref=$VCS_REF \
-      org.label-schema.vcs-url="https://github.com/nbrownuk/docker-aws-cli.git" \
-      org.label-schema.vcs-type=Git
+WORKDIR "/aws"
