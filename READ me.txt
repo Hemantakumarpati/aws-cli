@@ -1,0 +1,23 @@
+aws-cli
+Docker awscli An AWS CLI toolbox in container. See Dockerfile. This repo triggers auto-build and push images to dockerhub.com/u/hematakumarpati/awscli.
+
+To check AWS cli version
+
+docker run --rm hemantakumarpati/awscli aws --version docker run --rm hemantakumarpati/awscli s3cmd --version Examples Rebuild image. This will upgrade the package too:
+
+core@n1 git clone https://github.com/hemantakumarpati/aws-cli.git core@n1 docker build -t hemantakumarpati/awscli:latest . Ready-made tools:
+
+core@n1 docker run --rm hemantakumarpati/awscli get-metadata help Usage: get-metadata ACCOUNT HOSTNAME INSTANCEID PRIVATEIP PUBLICIP ROLE STSCRED STSTOKEN STSKEY SECRET ZONE
+
+core@n1 docker run --rm hemantakumarpati/awscli get-metadata instanceid i-453266b2 Command line argument is not case sensitve.
+
+Copy data from s3 bucket to local file system:
+
+core@n1 /usr/bin/docker run --rm -v /var/apps:/apps hemantakumarpati/awscli:latest aws s3 cp s3:///apps/nginx/ /apps/nginx Register an AWS instance with a load balancer. Pass in AWS credential (not needed if the instances has IAM role based permission):
+
+sudo more /root/.aws/envvars AWS_ACCESS_KEY_ID= AWS_SECRET_ACCESS_KEY= AWS_DEFAULT_REGION=us-west-2 #!/bin/bash AWS_CONFIG_ENV=/root/.aws/envvars INSTANCE=$(/usr/bin/curl -s http://172.168.5.54/latest/meta-data/instance-id) IMAGE=hemantakumarpati/awscli:latest
+
+CMD="aws elb register-instances-with-load-balancer
+--load-balancer-name --instances $INSTANCE "
+
+docker pull $IMAGE docker run --rm --env-file=$AWS_CONFIG_ENV $IMAGE /bin/bash -c "$CMD"

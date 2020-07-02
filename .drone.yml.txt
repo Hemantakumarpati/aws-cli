@@ -1,0 +1,7 @@
+image: hemantakumarpati/dind:latest
+script: 
+  - ./.drone/build.sh
+deploy:  
+  bash:
+    script:
+      - ./drone/deploy.sh
